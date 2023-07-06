@@ -1,87 +1,52 @@
-好的  请你给我们两聊天中完成的这个代码  写一个readme文档 包含代码功能说明  代码使用说明 代码优点和弊端说明。
+# 雨云签到
 
-# 用户id,用逗号分隔
-USER_ID=42701,4701,401
-# 用户密码，用逗号分隔，顺序与用户id对应
-USER_PASSWORD=123456,123456,123456
-# API Keys，用逗号分隔，顺序与用户id对应
-API_KEYS=MsuzDEkLelH2EJy1rua,MsuzDEkLelH2EJmyHNMrua,45641fsdfsageshADSDAS,45SDAS
-# API Key 的备注，用逗号分隔，顺序与 API Keys 对应
-API_KEY_REMARKS=Remark1,Remark2,Remark3,Remark4
-# API Key 的通知邮箱，用逗号分隔，顺序与 API Keys 对应
-NOTIFICATION_EMAILS=email1@example.com,email2@example.com,email3@example.com,email4@example.com
+- 这是一个用于在雨云进行自动签到的Python脚本。
+- 请注意 这只是一个demo，仅供学习参考，不保证能够长期使用。
+## 功能说明
 
-# 签到任务名称
-TASK_NAME=每日签到
+- 支持多账号登录和签到
+- 程序将在每天的0-10随机签到一次
+- 通过电子邮件发送签到结果的通知
 
 
-# 雨云接口URL
-API_URL=https://api.v2.rainyun.com/
+## 使用说明
 
-# 使用SMTP发送邮件，需要配置以下信息
-# SMTP 服务器地址
-SMTP_SERVER=your_smtp_server
-# SMTP 服务器端口号
-SMTP_PORT=587
-# 邮箱用户名
-SMTP_USERNAME=your_email@example.com
-# 邮箱密码
-SMTP_PASSWORD=your_email_password
-# 发件人邮箱
-SENDER_EMAIL=your_email@example.com
+1. 安装依赖库：在运行代码之前，请确保已安装以下依赖库：
+   - requests
+   - email
+   - apscheduler
+   - python-dotenv
+  
+   ```bash
+   pip install requests email apscheduler python-dotenv
+   ```
+   如果你使用python3，你可能需要使用pip3来安装依赖库。
+   ```bash
+   pip3 install requests email apscheduler python-dotenv
+   ```
+   - 如果您使用的是虚拟环境，请确保已经激活了虚拟环境再执行上述命令。
+2. 设置环境变量：在运行代码之前，请确保已设置以下环境变量：
+   - USER_ID: 用户ID，用逗号分隔
+   - USER_PASSWORD: 用户密码，用逗号分隔，顺序与用户ID对应
+   - API_KEYS: API Key，用逗号分隔，顺序与用户ID对应
+   - API_KEY_REMARKS: API Key的备注，用逗号分隔，顺序与API Key对应
+   - NOTIFICATION_EMAILS: API Key的通知邮箱，用逗号分隔，顺序与API Key对应
+   - TASK_NAME: 签到任务名称
+   - SMTP_SERVER: SMTP服务器地址
+   - SMTP_PORT: SMTP服务器端口号
+   - SMTP_USERNAME: 邮箱用户名
+   - SMTP_PASSWORD: 邮箱密码
+   - SENDER_EMAIL: 发件人邮箱
 
+3. 运行代码：使用以下命令运行代码：
+   ```
+   python app.py
+   ```
+   如果你使用python3，你可能需要使用python3来运行代码。
+   ```
+   python3 app.py
+   ```
 
-抱歉 以上的描述错误，雨云需要每天登录后才能签到 所以我们需要先登录然后签到。
-下面是雨云的登录接口和签到接口。请你根据我们之前的聊天记录和代码  完成新的多账号的登录和签到代码。
-# 登陆：
-post 
-https://api.v2.rainyun.com/user/login
-请求参数
-Header 参数
-x-api-key string 全 必需
-Body 参数 (application/json)
-field string   必需   该参数在环境变量设置为 USER_ID
-password string  必需  该参数在环境变量设置为 USER_PASSWORD
-##示例代码：
-
-import http.client
-import json
-
-conn = http.client.HTTPSConnection("api.v2.rainyun.com")
-payload = ''
-headers = {
-   'x-api-key': '',
-   'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-   'Content-Type': 'application/json'
-}
-conn.request("POST", "/user/login", payload, headers)
-res = conn.getresponse()
-data = res.read()
-print(data.decode("utf-8"))
-
-# 签到
-post
-https://api.v2.rainyun.com/user/reward/tasks
-请求参数
-Header 参数
-x-api-key string 全 必需
-Body 参数 (application/json)
-task_name string   必需   该参数在环境变量设置为TASK_NAME
- ## 示例代码：
-
-import http.client
-import json
-
-conn = http.client.HTTPSConnection("api.v2.rainyun.com")
-payload = ''
-headers = {
-   'x-api-key': '',
-   'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-   'Content-Type': 'application/json'
-}
-conn.request("POST", "/user/reward/tasks", payload, headers)
-res = conn.getresponse()
-data = res.read()
-print(data.decode("utf-8"))
+4. 定时任务：代码中已包含定时任务的设置，可以根据需要进行调整。
 
 
