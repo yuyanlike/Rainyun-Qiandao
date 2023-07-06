@@ -51,6 +51,7 @@ def perform_login(user_id, user_password):
         return result["x-api-key"]
     else:
         print(f"用户ID: {user_id} - 登录失败，错误信息: {result['message']}")
+        send_email(os.getenv("NOTIFICATION_EMAILS").split(",")[user_ids.index(user_id)], f"用户ID: {user_id}", result)
         return None
 
 # 执行签到任务
@@ -78,22 +79,20 @@ def send_email(notification_email, remark, result):
         smtp.login(smtp_username, smtp_password)
         email_content = create_email_content(remark, result)
         smtp.sendmail(sender_email, notification_email, email_content.as_string())
-        print("邮件通知已发送")
+        print(f"邮件通知已发送 - 用户ID: {remark} - 邮件地址: {notification_email}")
     except Exception as e:
-        print(f"发送邮件通知时出错: {str(e)} - {notification_email} - {email_content.as_string()}")
-        # print("发送邮件通知时出错:", str(e))
+        print(f"发送邮件通知时出错: {str(e)} - 用户ID: {remark} - 邮件地址: {notification_email}")
     finally:
         if 'smtp' in locals():
             smtp.quit()
 
 # 遍历所有账号登录并签到
 def sign_in_all():
-    for i, user_id in enumerate(user_ids):
-        if i < len(api_keys):
-            user_password = user_passwords[i]
+    for user_id, user_password in zip(user_ids, user_passwords):
+        if user_id in user_ids and api_keys[user_ids.index(user_id)]:
             remark = f"User {user_id}"
-            notification_email = os.getenv("NOTIFICATION_EMAILS").split(",")[i]
-            api_key = perform_login(user_id, user_password)
+            notification_email = os.getenv("NOTIFICATION_EMAILS").split(",")[user_ids.index(user_id)]
+            api_key = api_keys[user_ids.index(user_id)]
             if api_key:
                 perform_sign_in(api_key, remark, notification_email)
         else:
