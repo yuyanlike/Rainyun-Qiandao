@@ -25,6 +25,7 @@
 .env
 config.ini
 app.log
+config.py
 
 # 忽略生成的文档和API文档
 /doc/
@@ -37,4 +38,3 @@ app.log
 # 忽略备份文件
 *.bak
 *.backup
-.env

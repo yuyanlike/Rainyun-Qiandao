@@ -13,16 +13,14 @@
 
 1. 安装依赖库：在运行代码之前，请确保已安装以下依赖库：
    - requests
-   - email
    - apscheduler
-   - python-dotenv
   
    ```bash
-   pip install requests email apscheduler python-dotenv
+   pip install requests apscheduler 
    ```
    如果你使用python3，你可能需要使用pip3来安装依赖库。
    ```bash
-   pip3 install requests email apscheduler python-dotenv
+   pip3 install requests apscheduler
    ```
    - 如果您使用的是虚拟环境，请确保已经激活了虚拟环境再执行上述命令。
 2. 设置环境变量：在运行代码之前，请确保已设置以下环境变量：
@@ -35,11 +33,6 @@
    - API_KEY_REMARKS: API Key的备注，用逗号分隔，顺序与API Key对应
    - NOTIFICATION_EMAILS: API Key的通知邮箱，用逗号分隔，顺序与API Key对应
    - TASK_NAME: 签到任务名称
-   - SMTP_SERVER: SMTP服务器地址
-   - SMTP_PORT: SMTP服务器端口号
-   - SMTP_USERNAME: 邮箱用户名
-   - SMTP_PASSWORD: 邮箱密码
-   - SENDER_EMAIL: 发件人邮箱
 
 3. 运行代码：使用以下命令运行代码：
    ```
