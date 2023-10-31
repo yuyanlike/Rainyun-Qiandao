@@ -1,0 +1,34 @@
+# 用户配置
+USERS = [
+	{
+		"user_id": "",  # 雨云 用户id
+		"password": "",  # 雨云 密码
+		"x-api-key": "",  # 雨云x-api-key
+		"remark": "151",  # 备注
+		"notification_uid": "UID_hWJpbvddv1AYbbQVh"
+	},
+	{
+		"user_id": "",
+		"password": "",
+		"x-api-key": "",
+		"remark": "1566451",
+		"notification_uid": "UID_hWJAqlhddv1AYbbQVh"
+	}
+	# ,
+	# {
+	# 	"user_id": "用户id",
+	# 	"password": "密码",
+	# 	"x-api-key": "apikey",
+	# 	"remark": "备注",
+	# 	"notification_uid": "UID_hWJpbvddv1AYbbQVh"
+	# }
+]
+
+# 管理员配置
+ADMIN_UID = ""  # 所有账号的签到状态都会发送到这个UID
+
+# WxPusher配置
+WX_APP_TOKEN = "AT_iTXgB8dDvTqDCT0LyMSVq"  # 请替换成你自己的appToken
+
+# 任务名称
+TASK_NAME = "每日签到"

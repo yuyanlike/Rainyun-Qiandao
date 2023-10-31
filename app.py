@@ -1,126 +1,62 @@
-import os
 import requests
+from config import USERS, ADMIN_UID, WX_APP_TOKEN, TASK_NAME
 import json
-import smtplib
-import logging
-from email.mime.text import MIMEText
 from apscheduler.schedulers.blocking import BlockingScheduler
-from dotenv import load_dotenv
-
-# 加载环境变量
-load_dotenv()
-
-# 配置日志记录
-logging.basicConfig(filename='app.log', level=logging.WARN, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
-
-# 获取用户ID、密码和API Key的列表
-user_ids = os.getenv("USER_ID").split(",")
-user_passwords = os.getenv("USER_PASSWORD").split(",")
-api_keys = os.getenv("API_KEYS").split(",")
-api_key_remarks = os.getenv("API_KEY_REMARKS").split(",")
+from wxpusher import WxPusher
 
 # 设置API请求的URL
-url = "https://api.v2.rainyun.com"
+url = "https://api.v2.rainyun.com/user/reward/tasks"
 
-# 设置SMTP服务器和邮箱相关信息
-smtp_server = os.getenv("SMTP_SERVER")
-smtp_port = int(os.getenv("SMTP_PORT"))
-smtp_username = os.getenv("SMTP_USERNAME")
-smtp_password = os.getenv("SMTP_PASSWORD")
-sender_email = os.getenv("SENDER_EMAIL")
 
-# 设置Headers
-headers = {
-    'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-    'Content-Type': 'application/json'
-}
+# 签到单个账号
+def sign_in_one(user):
+	headers = {
+		'x-api-key': user['x-api-key'],
+		'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 '
+		              'Safari/537.36',
+		'Content-Type': 'application/json'
+	}
 
-# 创建邮件内容
-def create_email_content(remark, result):
-    subject = f"雨云签到结果 - {remark}"
-    content = f"签到结果: {result}"
-    email_content = MIMEText(content, 'plain')
-    email_content['Subject'] = subject
-    email_content['From'] = sender_email
-    return email_content
+	# 设置任务名称
+	payload = {
+		"task_name": TASK_NAME
+	}
 
-# 执行登录操作
-def perform_login(user_id, user_password, remark):
-    payload = {
-        "field": user_id,
-        "password": user_password
-    }
-    response = requests.post(f"{url}/user/login", headers=headers, json=payload)
-    result = response.json()
-    if response.status_code == 200:
-        return result["x-api-key"]
-    else:
-        error_message = result['message']
-        logging.error(f"用户ID: {user_id} - 备注：{remark} - 登录失败，错误信息: {error_message}")
-        send_email(os.getenv("NOTIFICATION_EMAILS").split(",")[user_ids.index(user_id)], f"用户ID: {user_id}", f"备注：{remark}", error_message)
-        return None
+	# 将payload转换为JSON字符串
+	data = json.dumps(payload)
 
-# 执行签到任务
-def perform_sign_in(api_key, remark, notification_email, user_id):
-    headers['x-api-key'] = api_key
-    task_name = os.getenv("TASK_NAME")
-    payload = {
-        "task_name": task_name
-    }
-    response = requests.post(f"{url}/user/reward/tasks", headers=headers, json=payload)
-    result = response.json()
+	response = requests.post(url, headers=headers, data=data)
 
-    if response.status_code == 200:
-        print(f"备注: {remark} - 用户id：{user_id} - 签到成功")
-        send_email(notification_email, remark, result, user_id)
-    else:
-        error_message = result['message']
-        logging.error(f"备注: {remark} - 用户id：{user_id} - 签到失败，错误信息: {error_message}")
-        send_email(notification_email, remark, result, user_id)
+	status = ('雨云账号:' + user['remark'] + '，签到结果：') + json.dumps(response.json(), ensure_ascii=False)
+	# send_wxpusher_message(user['notification_uid'], status)  # 我自用默认通知管理员
+	return status
 
-# 发送邮件通知
-def send_email(notification_email, remark, result, user_id):
-    try:
-        smtp = smtplib.SMTP_SSL(smtp_server, smtp_port)
-        smtp.login(smtp_username, smtp_password)
-        email_content = create_email_content(remark, result)
-        smtp.sendmail(sender_email, notification_email, email_content.as_string())
-        print(f"邮件通知已发送 - 用户ID: {user_id} - 邮件地址: {notification_email}")
-    except Exception as e:
-        error_message = str(e)
-        logging.error(f"发送邮件通知时出错: {error_message} - 用户ID: {user_id} - 邮件地址: {notification_email}")
-    finally:
-        if 'smtp' in locals():
-            try:
-                smtp.quit()
-            except Exception as e:
-                error_message = str(e)
-                logging.error(f"关闭SMTP连接时出错: {error_message}")
 
-# 遍历所有账号登录并签到
 def sign_in_all():
-    for index, (user_id, user_password) in enumerate(zip(user_ids, user_passwords)):
-        if user_id in user_ids and api_keys[user_ids.index(user_id)]:
-            remark = api_key_remarks[user_ids.index(user_id)]
-            notification_email = os.getenv("NOTIFICATION_EMAILS").split(",")[index] if index < len(os.getenv("NOTIFICATION_EMAILS").split(",")) else None
-            api_key = api_keys[user_ids.index(user_id)]
-            if api_key:
-                perform_sign_in(api_key, remark, notification_email, user_id)
-        else:
-            print(f"用户ID: {user_id} - 未设置API Key")
+	# 签到所有账号
+	results = [sign_in_one(user) for user in USERS]
+	return results
 
-# 启动立即执行一次
-try:
-    sign_in_all()
-except Exception as e:
-    error_message = str(e)
-    logging.error(f"执行签到时出错: {error_message}")
+
+def send_wxpusher_message(uid, message):
+	# 发送WxPusher消息
+	WxPusher.send_message(message, uids=[uid], token=WX_APP_TOKEN)
+
 
 # 定时任务
 scheduler = BlockingScheduler()
-try:
-    scheduler.add_job(sign_in_all, 'cron', hour=8, minute=0)  # 每天的8:00 AM触发签到任务
-    scheduler.start()
-except Exception as e:
-    error_message = str(e)
-    logging.error(f"启动定时任务时出错: {error_message}")
+
+
+@scheduler.scheduled_job("cron", hour="8", minute="10")
+def timed_job():
+	results = sign_in_all()
+	# 组合所有账号的签到结果
+	message = "\n".join(results)
+	send_wxpusher_message(ADMIN_UID, message)  # 默认通知管理员
+
+
+# 在定时任务开始之前立即执行一次
+timed_job()
+
+# 开始定时任务
+scheduler.start()

@@ -25,14 +25,8 @@
    - 如果您使用的是虚拟环境，请确保已经激活了虚拟环境再执行上述命令。
 2. 设置环境变量：在运行代码之前，请确保已设置以下环境变量：
    ```
-   cp .env.example .env 
+   cp config.example config.py
    ```
-   - USER_ID: 用户ID，用逗号分隔
-   - USER_PASSWORD: 用户密码，用逗号分隔，顺序与用户ID对应
-   - API_KEYS: API Key，用逗号分隔，顺序与用户ID对应
-   - API_KEY_REMARKS: API Key的备注，用逗号分隔，顺序与API Key对应
-   - NOTIFICATION_EMAILS: API Key的通知邮箱，用逗号分隔，顺序与API Key对应
-   - TASK_NAME: 签到任务名称
 
 3. 运行代码：使用以下命令运行代码：
    ```
