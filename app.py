@@ -4,6 +4,8 @@ import json
 from apscheduler.schedulers.blocking import BlockingScheduler
 from wxpusher import WxPusher
 
+
+
 # 设置API请求的URL
 url = "https://api.v2.rainyun.com/user/reward/tasks"
 
